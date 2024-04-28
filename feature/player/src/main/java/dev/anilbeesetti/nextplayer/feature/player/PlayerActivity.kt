@@ -100,9 +100,7 @@ import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.nio.charset.Charset
@@ -290,7 +288,7 @@ class PlayerActivity : AppCompatActivity() {
         if (playerPreferences.rememberPlayerBrightness) {
             brightnessManager.setBrightness(playerPreferences.playerBrightness)
         }
-        createPlayer()
+        createPlayer(intent.extras)
         setOrientation()
         initPlaylist()
         initializePlayerView()
@@ -338,7 +336,7 @@ class PlayerActivity : AppCompatActivity() {
         return params
     }
 
-    private fun createPlayer() {
+    private fun createPlayer(extras: Bundle?) {
         Timber.d("Creating player")
 
         val renderersFactory = NextRenderersFactory(applicationContext)
@@ -359,12 +357,16 @@ class PlayerActivity : AppCompatActivity() {
             )
         }
 
+        val extrasHeaders = (extras?.getStringArray("headers")?.toList() ?: emptyList())
+            .windowed(2, 2)
+            .associate { it[0] to it[1] }
+
         val mediaSourceFactory = DefaultHttpDataSource.Factory()
-            .setDefaultRequestProperties(playerPreferences.httpHeaders)
+            .setDefaultRequestProperties(playerPreferences.httpHeaders + extrasHeaders)
 
         playerPreferences.httpUserAgent.let { mediaSourceFactory.setUserAgent(it) }
 
-            val loadControl = DefaultLoadControl.Builder()
+        val loadControl = DefaultLoadControl.Builder()
             .setBufferDurationsMs(
                 playerPreferences.minBufferMs,
                 playerPreferences.maxBufferMs,
