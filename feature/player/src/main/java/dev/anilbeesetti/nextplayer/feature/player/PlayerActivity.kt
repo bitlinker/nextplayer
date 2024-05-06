@@ -41,6 +41,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Tracks
 import androidx.media3.common.VideoSize
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
@@ -361,10 +362,12 @@ class PlayerActivity : AppCompatActivity() {
             .windowed(2, 2)
             .associate { it[0] to it[1] }
 
-        val mediaSourceFactory = DefaultHttpDataSource.Factory()
+        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
             .setDefaultRequestProperties(playerPreferences.httpHeaders + extrasHeaders)
 
-        playerPreferences.httpUserAgent.let { mediaSourceFactory.setUserAgent(it) }
+        playerPreferences.httpUserAgent.let { httpDataSourceFactory.setUserAgent(it) }
+
+        val dataSourceFactory = DefaultDataSource.Factory(applicationContext, httpDataSourceFactory)
 
         val loadControl = DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -380,7 +383,7 @@ class PlayerActivity : AppCompatActivity() {
             .setTrackSelector(trackSelector)
             .setAudioAttributes(getAudioAttributes(), playerPreferences.requireAudioFocus)
             .setHandleAudioBecomingNoisy(playerPreferences.pauseOnHeadsetDisconnect)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(mediaSourceFactory))
+            .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
             .setLoadControl(loadControl)
             .build()
 
