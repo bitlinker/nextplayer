@@ -41,8 +41,12 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.Tracks
 import androidx.media3.common.VideoSize
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.session.MediaSession
 import androidx.media3.ui.AspectRatioFrameLayout
@@ -325,7 +329,7 @@ class PlayerActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun updatePictureInPictureParams(): PictureInPictureParams {
-        var params: PictureInPictureParams = PictureInPictureParams.Builder()
+        val params: PictureInPictureParams = PictureInPictureParams.Builder()
             .setAspectRatio(Rational(16, 9))
             .build()
 
@@ -354,11 +358,28 @@ class PlayerActivity : AppCompatActivity() {
             )
         }
 
+        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
+            .setDefaultRequestProperties(playerPreferences.httpHeaders)
+        playerPreferences.httpUserAgent.let { httpDataSourceFactory.setUserAgent(it) }
+
+        val dataSourceFactory = DefaultDataSource.Factory(applicationContext, httpDataSourceFactory)
+
+        val loadControl = DefaultLoadControl.Builder()
+            .setBufferDurationsMs(
+                playerPreferences.minBufferMs,
+                playerPreferences.maxBufferMs,
+                playerPreferences.bufferForPlaybackMs,
+                playerPreferences.bufferForPlaybackAfterRebuffer
+            )
+            .build()
+
         player = ExoPlayer.Builder(applicationContext)
             .setRenderersFactory(renderersFactory)
             .setTrackSelector(trackSelector)
             .setAudioAttributes(getAudioAttributes(), playerPreferences.requireAudioFocus)
             .setHandleAudioBecomingNoisy(playerPreferences.pauseOnHeadsetDisconnect)
+            .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
+            .setLoadControl(loadControl)
             .build()
 
         try {
@@ -603,7 +624,7 @@ class PlayerActivity : AppCompatActivity() {
             val alertDialog = MaterialAlertDialogBuilder(this@PlayerActivity).apply {
                 setTitle(getString(coreUiR.string.error_playing_video))
                 setMessage(error.message ?: getString(coreUiR.string.unknown_error))
-                setNegativeButton(getString(coreUiR.string.exit)) { dialog, _ ->
+                setNegativeButton(getString(coreUiR.string.exit)) { _, _ ->
                     finish()
                 }
                 if (playlistManager.hasNext()) {
