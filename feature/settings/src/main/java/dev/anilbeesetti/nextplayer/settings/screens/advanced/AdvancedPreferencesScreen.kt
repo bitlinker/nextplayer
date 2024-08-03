@@ -1,4 +1,4 @@
-package dev.anilbeesetti.nextplayer.settings.screens.network
+package dev.anilbeesetti.nextplayer.settings.screens.advanced
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
@@ -53,9 +53,9 @@ import dev.anilbeesetti.nextplayer.settings.composables.PreferenceSubtitle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NetworkPreferencesScreen(
+fun AdvancedPreferencesScreen(
     onNavigateUp: () -> Unit,
-    viewModel: NetworkPreferencesViewModel = hiltViewModel()
+    viewModel: AdvancedPreferencesViewModel = hiltViewModel()
 ) {
     val preferences by viewModel.preferencesFlow.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -67,7 +67,7 @@ fun NetworkPreferencesScreen(
             .nestedScroll(scrollBehaviour.nestedScrollConnection),
         topBar = {
             NextTopAppBar(
-                title = stringResource(id = R.string.network),
+                title = stringResource(id = R.string.advanced),
                 scrollBehavior = scrollBehaviour,
                 navigationIcon = {
                     IconButton(
@@ -90,36 +90,36 @@ fun NetworkPreferencesScreen(
                 .verticalScroll(state = rememberScrollState())
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
         ) {
-            PreferenceSubtitle(text = stringResource(id = R.string.network))
+            PreferenceSubtitle(text = stringResource(id = R.string.advanced))
             MinBufferPreference(
                 currentValue = preferences.minBufferMs,
-                onClick = { viewModel.showDialog(NetworkPreferenceDialog.MinBufferDialog) }
+                onClick = { viewModel.showDialog(AdvancedPreferenceDialog.MinBufferDialog) }
             )
             MaxBufferPreference(
                 currentValue = preferences.maxBufferMs,
-                onClick = { viewModel.showDialog(NetworkPreferenceDialog.MaxBufferDialog) }
+                onClick = { viewModel.showDialog(AdvancedPreferenceDialog.MaxBufferDialog) }
             )
             BufferForPlaybackPreference(
                 currentValue = preferences.bufferForPlaybackMs,
-                onClick = { viewModel.showDialog(NetworkPreferenceDialog.BufferForPlaybackDialog) }
+                onClick = { viewModel.showDialog(AdvancedPreferenceDialog.BufferForPlaybackDialog) }
             )
             BufferForPlaybackAfterRebufferPreference(
                 currentValue = preferences.bufferForPlaybackAfterRebuffer,
-                onClick = { viewModel.showDialog(NetworkPreferenceDialog.BufferForPlaybackAfterRebufferDialog) }
+                onClick = { viewModel.showDialog(AdvancedPreferenceDialog.BufferForPlaybackAfterRebufferDialog) }
             )
             HttpUserAgentPreference(
                 currentValue = preferences.httpUserAgent,
-                onClick = { viewModel.showDialog(NetworkPreferenceDialog.HttpUserAgentDialog) }
+                onClick = { viewModel.showDialog(AdvancedPreferenceDialog.HttpUserAgentDialog) }
             )
             HttpHeadersPreference(
                 currentValue = preferences.httpHeaders,
-                onClick = { viewModel.showDialog(NetworkPreferenceDialog.HttpHeadersDialog) }
+                onClick = { viewModel.showDialog(AdvancedPreferenceDialog.HttpHeadersDialog) }
             )
         }
 
         uiState.showDialog?.let { showDialog ->
             when (showDialog) {
-                NetworkPreferenceDialog.MinBufferDialog -> {
+                AdvancedPreferenceDialog.MinBufferDialog -> {
                     SeekPreferenceDialog(
                         titleRes = R.string.min_buffer_title,
                         descriptionRes = R.string.min_buffer_description,
@@ -131,11 +131,11 @@ fun NetworkPreferencesScreen(
                             viewModel.updateMinBufferMs(it.toInt())
                             viewModel.hideDialog()
                         },
-                        onDismissClick = viewModel::hideDialog,
+                        onDismissClick = viewModel::hideDialog
                     )
                 }
 
-                NetworkPreferenceDialog.MaxBufferDialog -> {
+                AdvancedPreferenceDialog.MaxBufferDialog -> {
                     SeekPreferenceDialog(
                         titleRes = R.string.max_buffer_title,
                         descriptionRes = R.string.max_buffer_description,
@@ -147,11 +147,11 @@ fun NetworkPreferencesScreen(
                             viewModel.updateMaxBufferMs(it.toInt())
                             viewModel.hideDialog()
                         },
-                        onDismissClick = viewModel::hideDialog,
+                        onDismissClick = viewModel::hideDialog
                     )
                 }
 
-                NetworkPreferenceDialog.BufferForPlaybackDialog -> {
+                AdvancedPreferenceDialog.BufferForPlaybackDialog -> {
                     SeekPreferenceDialog(
                         titleRes = R.string.buffer_for_playback_title,
                         descriptionRes = R.string.buffer_for_playback_description,
@@ -163,11 +163,11 @@ fun NetworkPreferencesScreen(
                             viewModel.updateBufferForPlaybackMs(it.toInt())
                             viewModel.hideDialog()
                         },
-                        onDismissClick = viewModel::hideDialog,
+                        onDismissClick = viewModel::hideDialog
                     )
                 }
 
-                NetworkPreferenceDialog.BufferForPlaybackAfterRebufferDialog -> {
+                AdvancedPreferenceDialog.BufferForPlaybackAfterRebufferDialog -> {
                     SeekPreferenceDialog(
                         titleRes = R.string.buffer_for_playback_after_rebuffer_title,
                         descriptionRes = R.string.buffer_for_playback_after_rebuffer_description,
@@ -179,11 +179,11 @@ fun NetworkPreferencesScreen(
                             viewModel.updateBufferForPlaybackAfterRebufferMs(it.toInt())
                             viewModel.hideDialog()
                         },
-                        onDismissClick = viewModel::hideDialog,
+                        onDismissClick = viewModel::hideDialog
                     )
                 }
 
-                NetworkPreferenceDialog.HttpUserAgentDialog -> {
+                AdvancedPreferenceDialog.HttpUserAgentDialog -> {
                     StringDialog(
                         titleRes = R.string.http_user_agent_title,
                         placeholderRes = R.string.http_user_agent_placeholder,
@@ -193,11 +193,11 @@ fun NetworkPreferencesScreen(
                             viewModel.updateHttpUserAgent(it.ifBlank { null })
                             viewModel.hideDialog()
                         },
-                        onDismiss = viewModel::hideDialog,
+                        onDismiss = viewModel::hideDialog
                     )
                 }
 
-                NetworkPreferenceDialog.HttpHeadersDialog -> {
+                AdvancedPreferenceDialog.HttpHeadersDialog -> {
                     StringDialog(
                         titleRes = R.string.http_headers_title,
                         placeholderRes = R.string.http_headers_placeholder,
@@ -211,7 +211,7 @@ fun NetworkPreferencesScreen(
                             }
                             viewModel.hideDialog()
                         },
-                        onDismiss = viewModel::hideDialog,
+                        onDismiss = viewModel::hideDialog
                     )
                 }
             }
@@ -228,7 +228,7 @@ private fun SeekPreferenceDialog(
     defaultState: Float,
     range: ClosedFloatingPointRange<Float>,
     onDoneClick: (value: Float) -> Unit,
-    onDismissClick: () -> Unit,
+    onDismissClick: () -> Unit
 ) {
     var seekIncrement by remember { mutableFloatStateOf(initialState) }
 
@@ -255,12 +255,12 @@ private fun SeekPreferenceDialog(
                 value = seekIncrement,
                 onValueChange = { seekIncrement = it },
                 valueRange = range,
-                modifier = Modifier.padding(bottom = 16.dp),
+                modifier = Modifier.padding(bottom = 16.dp)
             )
             Box(modifier = Modifier.fillMaxWidth()) {
                 TextButton(
                     onClick = { seekIncrement = defaultState },
-                    modifier = Modifier.align(Alignment.TopCenter),
+                    modifier = Modifier.align(Alignment.TopCenter)
                 ) {
                     Text(text = stringResource(id = R.string.reset_to_default))
                 }
